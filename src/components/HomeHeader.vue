@@ -11,6 +11,7 @@
           <el-dropdown-item command="vue">Vue</el-dropdown-item>
           <el-dropdown-item command="vue-jsx">Vue JSX</el-dropdown-item>
           <el-dropdown-item command="react">React</el-dropdown-item>
+          <el-dropdown-item command="react-antd">React Antd</el-dropdown-item>
           <el-dropdown-item command="preact">Preact</el-dropdown-item>
           <el-dropdown-item command="rxjs">RxJS</el-dropdown-item>
           <el-dropdown-item command="svelte">Svelte</el-dropdown-item>
