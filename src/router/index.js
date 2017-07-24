@@ -8,7 +8,7 @@ const EditorPage = () => import(/* webpackChunkName: "editor-page" */ '@/views/E
 const NotFound = () => import(/* webpackChunkName: "not-found-page" */ '@/views/NotFound.vue')
 
 const router = new Router({
-  mode: 'history',
+  // mode: 'history',
   routes: [
     {
       name: 'home',

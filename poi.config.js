@@ -14,28 +14,28 @@ module.exports = {
   production: {
     sourceMap: false
   },
-  homepage: '/',
+  homepage: './',
   presets: [
     require('poi-preset-bundle-report')(),
-    require('poi-preset-offline')({
-      pluginOptions: {
-        version: '[hash]',
-        autoUpdate: true,
-        safeToUseOptionalCaches: true,
-        caches: {
-          main: ['index.html', 'client.*.*', 'vendor.*.*', 'editor-page.*.chunk.js'],
-          additional: ['*.chunk.js', ':externals:'],
-          optional: [':rest:']
-        },
-        ServiceWorker: {
-          events: true,
-          navigateFallbackURL: '/'
-        },
-        AppCache: {
-          events: true,
-          FALLBACK: { '/': '/' }
-        }
-      }
-    })
+    // require('poi-preset-offline')({
+    //   pluginOptions: {
+    //     version: '[hash]',
+    //     autoUpdate: true,
+    //     safeToUseOptionalCaches: true,
+    //     caches: {
+    //       main: ['index.html', 'client.*.*', 'vendor.*.*', 'editor-page.*.chunk.js'],
+    //       additional: ['*.chunk.js', ':externals:'],
+    //       optional: [':rest:']
+    //     },
+    //     ServiceWorker: {
+    //       events: true,
+    //       navigateFallbackURL: '/'
+    //     },
+    //     AppCache: {
+    //       events: true,
+    //       FALLBACK: { './': './' }
+    //     }
+    //   }
+    // })
   ]
 }

@@ -1,6 +1,7 @@
 # CodePan Custom
 
 1. Added React Antd.
+2. Change to `Hash Mode`, Change HomePage to `./`, Remove `offline`
 
 # CodePan
 
