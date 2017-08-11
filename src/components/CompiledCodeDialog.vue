@@ -4,7 +4,7 @@
     :is-open="show"
     :click-outside="() => $emit('update:show', false)">
     <h2 class="modal-title">
-      <svg-icon name="code" class="svg-icon"></svg-icon>
+      <repeat-icon class="svg-icon"></repeat-icon>
       Compiled with {{ transformerName }}</h2>
     <highlight :mode="highlight">{{ transformedCode }}</highlight>
   </modal>
@@ -13,10 +13,10 @@
 <script>
 import Modal from 'vue-slim-modal'
 import { mapActions } from 'vuex'
+import { RepeatIcon } from 'vue-feather-icons'
 import { getHumanlizedTransformerName } from '@/utils'
 import * as transform from '@/utils/transform'
 import Highlight from './Highlight'
-import SvgIcon from './SvgIcon.vue'
 
 export default {
   name: 'compiled-code-dialog',
@@ -53,7 +53,7 @@ export default {
   components: {
     Modal,
     Highlight,
-    SvgIcon
+    RepeatIcon
   }
 }
 </script>
@@ -64,6 +64,7 @@ export default {
   width: 50%
   background: white
   top: 41px
+  border-radius: 3px
 
 .modal-title
   margin: 0
@@ -77,8 +78,6 @@ export default {
 
 .svg-icon
   margin-right: 8px
-  >>> svg
-    margin-top: 2px
-    width: 20px
-    height: @width
+  width: 16px
+  height: @width
 </style>

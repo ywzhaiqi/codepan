@@ -1,6 +1,23 @@
 <template>
   <div class="page" >
     <home-header />
+
+    <compiled-code-dialog
+      v-if="js.code"
+      :code="js"
+      :show.sync="showCompiledCode.js"
+      highlight="javascript"
+      type="js">
+    </compiled-code-dialog>
+
+    <compiled-code-dialog
+      v-if="html.code"
+      :code="html"
+      :show.sync="showCompiledCode.html"
+      highlight="htmlmixed"
+      type="html">
+    </compiled-code-dialog>
+
     <div class="pans">
       <html-pan class="pan" v-show="isVisible('html')" />
       <css-pan class="pan" v-show="isVisible('css')" />
@@ -14,6 +31,7 @@
 <script>
   import progress from 'nprogress'
   import { mapState, mapActions } from 'vuex'
+  import notie from 'notie'
   import Event from '@/utils/event'
   import HomeHeader from '@/components/HomeHeader.vue'
   import HTMLPan from '@/components/HTMLPan.vue'
@@ -21,6 +39,7 @@
   import OutputPan from '@/components/OutputPan.vue'
   import ConsolePan from '@/components/ConsolePan.vue'
   import CSSPan from '@/components/CSSPan.vue'
+  import CompiledCodeDialog from '@/components/CompiledCodeDialog.vue'
 
   async function handleRouteChange(to, vm) {
     let boilerplate
@@ -50,8 +69,17 @@
 
   export default {
     name: 'editor-page',
+    data() {
+      return {
+        showCompiledCode: {
+          js: false,
+          css: false,
+          html: false
+        }
+      }
+    },
     computed: {
-      ...mapState(['visiblePans'])
+      ...mapState(['visiblePans', 'editorStatus', 'js', 'css', 'html'])
     },
     beforeRouteEnter(to, from, next) {
       next(async vm => {
@@ -80,12 +108,36 @@
       if (window.self !== window.top) {
         window.parent.postMessage({ type: 'codepan-ready' }, '*')
       }
+
+      window.addEventListener('storage', this.handleStorageChanged)
+
+      window.onbeforeunload = () => {
+        if (this.editorStatus !== 'saved') {
+          return true
+        }
+      }
+
+      Event.$on('show-compiled-code', type => {
+        this.showCompiledCode[type] = true
+      })
     },
     methods: {
       ...mapActions(['setBoilerplate', 'setGist', 'showPans']),
       isVisible(pan) {
         return this.visiblePans.indexOf(pan) !== -1
+      },
+      handleStorageChanged(e) {
+        if (e.key === 'codepan:gh-token' && e.newValue) {
+          this.$store.dispatch('setGitHubToken', e.newValue)
+          notie.alert({
+            type: 'success',
+            text: 'Successfully logged in with GitHub!'
+          })
+        }
       }
+    },
+    beforeDestroy() {
+      window.removeEventListener('storage', this.handleStorageChanged)
     },
     components: {
       'html-pan': HTMLPan,
@@ -93,7 +145,8 @@
       'output-pan': OutputPan,
       'console-pan': ConsolePan,
       'css-pan': CSSPan,
-      'home-header': HomeHeader
+      'home-header': HomeHeader,
+      CompiledCodeDialog
     }
   }
 </script>
@@ -132,15 +185,15 @@
   display: flex
   justify-content: space-between
   align-items: center
-  .svg-icon
+  svg.svg-icon
+    margin-left: 5px
     cursor: pointer
-    svg
-      width: 16px
-      height: @width
-      color: #666
+    width: 14px
+    height: @width
+    color: #666
+    outline: none
     &:hover
-      svg
-        color: #333
+      color: #000
 
 .pans.resizing
   cursor: ew-resize

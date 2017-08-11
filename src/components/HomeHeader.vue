@@ -61,6 +61,9 @@
       </span>
     </div>
     <div class="home-header-right home-header-block">
+      <span class="editor-save-status" v-if="editorStatus === 'saving'">
+        <svg-icon class="svg-icon" name="loading"></svg-icon> Saving...
+      </span>
       <el-button
         icon="caret-right"
         size="mini"
@@ -71,11 +74,35 @@
       </el-button>
       <el-dropdown
         class="home-header-right-item home-header-more"
+        @command="handleDropdownCommand"
         trigger="click">
         <el-button icon="more" size="mini"></el-button>
         <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="github-login">
+            <div class="fake-anchor">
+              <github-icon></github-icon> GitHub Login
+            </div>
+          </el-dropdown-item>
+          <el-dropdown-item command="save-anonymous-gist">
+            <div class="fake-anchor">
+              <file-icon></file-icon> Save Anonymous Gist
+            </div>
+          </el-dropdown-item>
+          <el-dropdown-item command="save-gist">
+            <div class="fake-anchor">
+              <file-plus-icon></file-plus-icon> Save New Gist
+            </div>
+          </el-dropdown-item>
+          <el-dropdown-item v-tippy="{title: 'You can update this gist if you own it', position: 'left', arrow: true}" v-if="canUpdateGist" command="update-gist">
+            <div class="fake-anchor">
+              <save-icon></save-icon> Update Gist
+            </div>
+          </el-dropdown-item>
           <el-dropdown-item style="padding: 0;">
-            <a class="el-dropdown-menu__item" target="_blank" href="https://github.com/egoist/codepan">GitHub</a>
+            <a class="el-dropdown-menu__item fake-anchor" target="_blank" href="https://github.com/egoist/codepan"><link2-icon></link2-icon> Source Code</a>
+          </el-dropdown-item>
+          <el-dropdown-item style="padding: 0;">
+            <a class="el-dropdown-menu__item fake-anchor" target="_blank" href="https://twitter.com/_egoistlily"><twitter-icon></twitter-icon> Follow me on Twitter</a>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -87,13 +114,27 @@
   import { mapState, mapActions } from 'vuex'
   import { Button, Input, Badge, Dropdown, DropdownMenu, DropdownItem, MessageBox } from 'element-ui'
   import Event from '@/utils/event'
+  import popup from '@/utils/popup'
+  import notie from 'notie'
+  import {
+    GithubIcon,
+    FileIcon,
+    FilePlusIcon,
+    Link2Icon,
+    SaveIcon,
+    TwitterIcon
+  } from 'vue-feather-icons'
+  import SvgIcon from './SvgIcon.vue'
 
   export default {
     computed: {
-      ...mapState(['visiblePans']),
+      ...mapState(['visiblePans', 'githubToken', 'editorStatus']),
       ...mapState({
         totalLogsCount: state => state.logs.length
-      })
+      }),
+      canUpdateGist() {
+        return this.$route.name === 'gist' && this.githubToken
+      }
     },
     mounted() {
       window.addEventListener('keydown', this.handleKeydown)
@@ -136,6 +177,53 @@
       },
       runCode() {
         Event.$emit('run')
+      },
+      handleDropdownCommand(command) {
+        if (command === 'save-gist') {
+          if (this.githubToken) {
+            Event.$emit('save-gist')
+          } else {
+            this.githubLogin()
+          }
+        } else if (command === 'save-anonymous-gist') {
+          Event.$emit('save-anonymous-gist')
+        } else if (command === 'update-gist') {
+          Event.$emit('save-gist', true)
+        } else if (command === 'github-login') {
+          this.githubLogin()
+        }
+      },
+      githubLogin() {
+        notie.select({
+          text: 'Choose the way to login to GitHub',
+          choices: [{
+            text: 'Token',
+            handler: () => {
+              this.promptGitHubToken()
+            }
+          }, {
+            text: 'OAuth',
+            type: 2,
+            handler: () => {
+              const loginURL = process.env.NODE_ENV === 'development' ? 'http://localhost:4001/login' : 'https://gh-login.codepan.net/login'
+
+              popup(loginURL, 'gh login', 600, 400)
+            }
+          }]
+        })
+      },
+      promptGitHubToken() {
+        notie.input({
+          text: 'Please set your personal access token for GitHub Gist',
+          submitCallback: value => {
+            this.$store.dispatch('setGitHubToken', value)
+            notie.alert({
+              type: 'success',
+              time: 6,
+              text: 'Done, now you can save your code to GitHub Gist under your account!'
+            })
+          }
+        })
       }
     },
     components: {
@@ -144,7 +232,14 @@
       'el-dropdown-item': DropdownItem,
       'el-button': Button,
       'el-input': Input,
-      'el-badge': Badge
+      'el-badge': Badge,
+      GithubIcon,
+      FileIcon,
+      FilePlusIcon,
+      Link2Icon,
+      SaveIcon,
+      TwitterIcon,
+      SvgIcon
     }
   }
 </script>
@@ -200,4 +295,17 @@
 
     &.visible
       background-color: #EBF3FF
+
+.editor-save-status
+  display: flex
+  align-items: center
+  color: #607d8b
+  .svg-icon
+    display: flex
+    align-items: center
+    margin-right: 5px
+  >>> svg
+    fill: @color
+    width: 16px
+    height: @width
 </style>

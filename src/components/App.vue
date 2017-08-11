@@ -13,6 +13,8 @@
 <style src="nprogress/nprogress.css"></style>
 <style src="vue-slim-modal/themes/default.css"></style>
 <style src="v-tippy/dist/tippy.css"></style>
+<style src="notie/dist/notie.min.css"></style>
+
 
 <style lang="stylus">
 html, body, #app, .page
@@ -53,11 +55,21 @@ pre > code
   position: relative
 
 .el-dropdown-menu
-  a
+  .fake-anchor
     color: #333
     text-decoration: none
-    display: block
+    align-items: center
+    display: flex
+    width: 100%
+    svg
+      margin-right: 10px
+      width: 16px
+      height: @width
+      color: #666
 
 .el-badge
   z-index: 1000
+
+.notie-container
+  z-index: 9999
 </style>

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { loadBabel, loadPug, loadMarkdown, loadSvelte } from '@/utils/transformer'
+import { loadBabel, loadPug, loadMarkdown, loadSvelte, loadReason, loadCoffeeScript2 } from '@/utils/transformer'
 import progress from 'nprogress'
 import axios from 'axios'
 import req from 'reqjs'
@@ -56,7 +56,9 @@ const store = new Vuex.Store({
     logs: [],
     visiblePans: ['html', 'js', 'output'],
     activePan: 'js',
-    autoRun: false
+    autoRun: false,
+    githubToken: localStorage.getItem('codepan:gh-token') || '',
+    editorStatus: 'saved'
   },
   mutations: {
     UPDATE_CODE(state, { type, code }) {
@@ -86,6 +88,12 @@ const store = new Vuex.Store({
     },
     ACTIVE_PAN(state, pan) {
       state.activePan = pan
+    },
+    SET_GITHUB_TOKEN(state, token) {
+      state.githubToken = token
+    },
+    SET_EDITOR_STATUS(state, status) {
+      state.editorStatus = status
     }
   },
   actions: {
@@ -123,6 +131,10 @@ const store = new Vuex.Store({
         await loadMarkdown()
       } else if (transformer === 'svelte') {
         await loadSvelte()
+      } else if (transformer === 'reason') {
+        await loadReason()
+      } else if (transformer === 'coffeescript-2') {
+        await loadCoffeeScript2()
       }
       commit('UPDATE_TRANSFORMER', { type, transformer })
     },
@@ -162,16 +174,29 @@ const store = new Vuex.Store({
 
       await Promise.all(ps)
 
+      setTimeout(() => {
+        dispatch('editorSaved')
+      })
+
       progress.done()
     },
-    async setGist({ commit, dispatch }, id) {
-      const { data: { files } } = await axios.get(`https://api.github.com/gists/${id}`)
+    async setGist({ commit, dispatch, state }, id) {
+      const params = {}
+      if (state.githubToken) {
+        // eslint-disable-next-line camelcase
+        params.access_token = state.githubToken
+      }
+      const { data: { files } } = await axios.get(`https://api.github.com/gists/${id}`, {
+        params
+      })
 
       const main = {
         html: {},
         css: {},
         js: {},
-        ...(files['index.js'] ? req(files['index.js'].content) : {})
+        ...(files['index.js'] ? req(files['index.js'].content) : {}),
+        ...(files['codepan.js'] ? req(files['codepan.js'].content) : {}),
+        ...(files['codepan.json'] ? JSON.parse(files['codepan.json'].content) : {})
       }
       for (const type of ['html', 'js', 'css']) {
         if (!main[type].code) {
@@ -182,6 +207,22 @@ const store = new Vuex.Store({
         }
       }
       await dispatch('setBoilerplate', main)
+    },
+    setGitHubToken({ commit }, token) {
+      commit('SET_GITHUB_TOKEN', token)
+      localStorage.setItem('codepan:gh-token', token)
+    },
+    editorSaved({ commit }) {
+      commit('SET_EDITOR_STATUS', 'saved')
+    },
+    editorChanged({ commit }) {
+      commit('SET_EDITOR_STATUS', 'changed')
+    },
+    editorSaving({ commit }) {
+      commit('SET_EDITOR_STATUS', 'saving')
+    },
+    editorSavingError({ commit }) {
+      commit('SET_EDITOR_STATUS', 'error')
     }
   }
 })
