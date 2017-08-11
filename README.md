@@ -1,6 +1,6 @@
-# CodePan Custom
+# CodePan 修改版
 
-1. Added React Antd.
+1. 新增：React antd 模板
 2. Change to `Hash Mode`, Change HomePage to `./`, Remove `offline`
 
 # CodePan

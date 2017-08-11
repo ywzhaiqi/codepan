@@ -43,7 +43,7 @@ module.exports = {
         AppCache: {
           events: true,
           // FALLBACK: { '/': '/' }
-          FALLBACK: { './': './' }
+          FALLBACK: { '/': homepage }
         },
         externals: [
           'https://reasonml.github.io/bs.js',
