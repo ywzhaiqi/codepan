@@ -18,6 +18,14 @@
       type="html">
     </compiled-code-dialog>
 
+    <compiled-code-dialog
+      v-if="css.code"
+      :code="css"
+      :show.sync="showCompiledCode.css"
+      highlight="css"
+      type="css">
+    </compiled-code-dialog>
+
     <div class="pans">
       <html-pan class="pan" v-show="isVisible('html')" />
       <css-pan class="pan" v-show="isVisible('css')" />
@@ -152,6 +160,7 @@
 </script>
 
 <style src="codemirror/lib/codemirror.css"></style>
+<style src="codemirror/addon/fold/foldgutter.css"></style>
 
 <style lang="stylus" scoped>
 .pans

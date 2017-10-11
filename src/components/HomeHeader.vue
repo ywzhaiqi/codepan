@@ -19,11 +19,13 @@
       </el-dropdown>
       <el-button
         class="home-header-left-item"
+        style="margin-right:0"
         icon="plus"
         @click="promptLibrary"
         size="mini">
         Add library
       </el-button>
+      <span class="home-header-left-item changelog-indicator"></span>
     </div>
     <div class="home-header-middle home-header-block pan-toggles">
       <span
@@ -61,8 +63,8 @@
       </span>
     </div>
     <div class="home-header-right home-header-block">
-      <span class="editor-save-status" v-if="editorStatus === 'saving'">
-        <svg-icon class="svg-icon" name="loading"></svg-icon> Saving...
+      <span class="home-header-right-item editor-save-status" v-if="editorStatus === 'saving'">
+        <saving />
       </span>
       <el-button
         icon="caret-right"
@@ -125,6 +127,7 @@
     TwitterIcon
   } from 'vue-feather-icons'
   import SvgIcon from './SvgIcon.vue'
+  import Saving from './Saving.vue'
 
   export default {
     computed: {
@@ -239,7 +242,8 @@
       Link2Icon,
       SaveIcon,
       TwitterIcon,
-      SvgIcon
+      SvgIcon,
+      Saving
     }
   }
 </script>
@@ -263,12 +267,18 @@
   justify-content: flex-start
   .home-header-left-item
     margin-right: 10px
+    height: 22px
 
 .home-header-right
   display: flex
   justify-content: flex-end
   .home-header-right-item
     margin-left: 10px
+    height: 22px
+
+.changelog-indicator
+  display: flex
+  align-items: center
 
 .pan-toggles
   display: flex

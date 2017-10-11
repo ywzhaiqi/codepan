@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { loadBabel, loadPug, loadMarkdown, loadSvelte, loadReason, loadCoffeeScript2 } from '@/utils/transformer'
+import { loadBabel, loadPug, loadMarkdown, loadSvelte, loadReason, loadCoffeeScript2, loadCssnext } from '@/utils/transformer'
 import progress from 'nprogress'
 import axios from 'axios'
 import req from 'reqjs'
+import Event from '@/utils/event'
 
 Vue.use(Vuex)
 
@@ -135,6 +136,8 @@ const store = new Vuex.Store({
         await loadReason()
       } else if (transformer === 'coffeescript-2') {
         await loadCoffeeScript2()
+      } else if (transformer === 'cssnext') {
+        await loadCssnext()
       }
       commit('UPDATE_TRANSFORMER', { type, transformer })
     },
@@ -169,13 +172,15 @@ const store = new Vuex.Store({
         ps.push(dispatch('showPans', boilerplate.showPans))
       }
 
-      ps.push(dispatch('setActivePan', boilerplate.activePan || 'js'))
+      const { activePan = 'js' } = boilerplate
+      ps.push(dispatch('setActivePan', activePan))
       ps.push(dispatch('clearLogs'))
 
       await Promise.all(ps)
 
       setTimeout(() => {
         dispatch('editorSaved')
+        Event.$emit('focus-editor', activePan)
       })
 
       progress.done()

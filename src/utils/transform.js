@@ -1,23 +1,23 @@
 import { transformers } from '@/utils/transformer'
 
-export function js({ code, transformer }) {
+export async function js({ code, transformer }) {
   if (transformer === 'js') {
     return code
   } else if (transformer === 'babel') {
     return window.Babel.transform(code, {
-      presets: ['es2015', 'stage-2', transformers.get('FlowPreset')],
+      presets: ['es2015', 'stage-0', transformers.get('FlowPreset')],
       plugins: ['transform-react-jsx']
     }).code
   } else if (transformer === 'jsx') {
     return window.Babel.transform(code, {
-      presets: ['stage-2', transformers.get('FlowPreset')],
+      presets: ['stage-0', transformers.get('FlowPreset')],
       plugins: ['transform-react-jsx']
     }).code
   } else if (transformer === 'vue-jsx') {
     return window.Babel
       .transform(code, {
         presets: [
-          'stage-2',
+          'stage-0',
           transformers.get('VuePreset'),
           transformers.get('FlowPreset')
         ]
@@ -58,7 +58,7 @@ export function js({ code, transformer }) {
   throw new Error(`Unknow transformer: ${transformer}`)
 }
 
-export function html({ code, transformer }) {
+export async function html({ code, transformer }) {
   if (transformer === 'html') {
     return code
   } else if (transformer === 'pug') {
@@ -67,4 +67,16 @@ export function html({ code, transformer }) {
     return transformers.get('markdown')(code)
   }
   throw new Error(`Unknow transformer: ${transformer}`)
+}
+
+export async function css({ code, transformer }) {
+  switch (transformer) {
+    case 'css':
+      return code
+    case 'cssnext':
+      const res = await window.postcss([window.cssnext]).process(code)
+      return res.css
+    default:
+      throw new Error(`Unknow transformer: ${transformer}`)
+  }
 }

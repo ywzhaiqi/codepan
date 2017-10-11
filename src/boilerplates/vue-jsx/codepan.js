@@ -1,28 +1,21 @@
-const App = {
-  render() {
-    return <Counter initialCount={0} />
-  }
-}
-
-const Counter = {
-  props: ['initialCount'],
-  data() {
-    return {
-      count: this.initialCount
+new Vue({
+  el: '#app',
+  data: { count: 0 },
+  methods: {
+    inc() {
+      this.count++
+    },
+    dec() {
+      this.count--
     }
   },
   render() {
     return (
-      <button
-        class="button"
-        onClick={() => this.count++}>
-        {this.count}
-      </button>
+      <div id="app">
+        <h2>{this.count}</h2>
+        <button onClick={this.inc}>inc</button>
+        <button onClick={this.dec}>dec</button>
+      </div>
     )
   }
-}
-
-new Vue({
-  el: '#app',
-  render: h => h(App)
 })
